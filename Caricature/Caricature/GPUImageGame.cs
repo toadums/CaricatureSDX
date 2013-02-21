@@ -1,6 +1,7 @@
 ﻿using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
+using SharpDX.Toolkit.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,12 @@ namespace Caricature
         /// </summary>
         Texture2D InTex;
 
+        int Rows = 10;
+        int Cols = 10;
+
+        float Top = 1.0f;
+        float Edge = 1.0f;
+
         /// <summary>
         /// basic constructor. Just setting things up - pretty standard
         /// </summary>
@@ -48,7 +55,12 @@ namespace Caricature
         {
             graphicsDeviceManager = new GraphicsDeviceManager(this);
 
+            pointerService = new PointerManager(this);
+
             Content.RootDirectory = "Content";
+
+            IsMouseVisible = true;
+
         }
 
         /// <summary>
@@ -71,22 +83,23 @@ namespace Caricature
                 VertexColorEnabled = true,
                 View = Matrix.LookAtLH(new Vector3(0, 0, -5), new Vector3(0, 0, 0), Vector3.UnitY),
                 Projection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, (float)GraphicsDevice.BackBuffer.Width / GraphicsDevice.BackBuffer.Height, 0.1f, 100.0f),
+                //Projection = Matrix.OrthoLH(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, 0.1f, 100.0f),
                 World = Matrix.Identity
             };
 
             //which color will lines be
             Color vertexColor = Color.Black;
             //view limits
-            float top = BasicGrid.Projection.M11 / BasicGrid.Projection.M22;
-            float edge = 1.0f;
+            Top = BasicGrid.Projection.M11 / BasicGrid.Projection.M22;
+            Edge = 1.0f;
 
             //10x10 grid, so 11x11 vertices
             m_Vertices = new VertexPositionColor[121];
             int count = 0;
             //adding vertices
-            for (float i = -edge; i <= edge; i += edge / 5.0f)
+            for (float i = -Edge; i <= Edge; i += Edge / 5.0f)
             {
-                for (float j = -top; j <= top; j += top / 5.0f)
+                for (float j = -Top; j <= Top; j += Top / 5.0f)
                 {
                     m_Vertices[count] = new VertexPositionColor(new Vector3(i, j, -1.0f), vertexColor);
                     count++;
@@ -94,6 +107,7 @@ namespace Caricature
             }
 
             //fuck these things. UGH
+            /*
             int[] indicies = new int[20*11 *2] {    
     
                 0,  1,  1,  2,  2,  3,  3,  4,  4,  5,  5,  6,  6,  7,  7,  8,  8,  9,  9,  10,
@@ -120,7 +134,48 @@ namespace Caricature
                 10, 21, 21, 32, 32, 43, 43, 54, 54, 65, 65, 76, 76, 87, 87, 98, 98, 109,109,120,
 
             };
-            
+            */
+
+            //auto generate indicies
+            //vertical lines
+            int[] indicies = new int[20 * 11 * 2];
+            int n = 0;
+            int index = 0;
+
+            while (index < indicies.Length / 2)
+            {
+                indicies[index] = n;
+
+                if (n % 11 != 0 && n % 11 != 10)
+                {
+                    index++;
+                    indicies[index] = n;
+                }
+                n++;
+                index++;
+            }
+
+            //horizontal lines
+            int rowCount = 0;
+            n = 0;
+            while (index < indicies.Length)
+            {
+                indicies[index] = n;
+                
+
+                if (rowCount % (Rows * 2) != 0 && rowCount % (Rows * 2) != Rows * 2 - 1)
+                {
+                    rowCount = (rowCount + 1) % (Rows * 2);
+                    index++;
+                    indicies[index] = n;
+                }
+                rowCount = (rowCount+1) % (Rows * 2);
+
+                n = (n + 11) % 120;
+                index++;
+            }
+
+            indicies[indicies.Length - 1] = 120;
 
             //actually create the buffers
             Indices = SharpDX.Toolkit.Graphics.Buffer.Index.New<int>(GraphicsDevice, indicies);
@@ -142,7 +197,54 @@ namespace Caricature
 
             //randomly move a random vertex...in future this will be when the user drags
             //also need to calculate each vertex via FFD formula
-            m_Vertices[new Random().Next(m_Vertices.Length - 1)].Position.X += 0.05f * (new Random().Next()%2 == 0?-1:1);
+           // m_Vertices[new Random().Next(m_Vertices.Length - 1)].Position.X += 0.05f * (new Random().Next()%2 == 0?-1:1);
+
+            pointerService.GetState(pointerState);
+
+            float buff = 0.09f;
+
+            foreach (PointerPoint point in pointerState.Points)
+            {
+
+                if (point.EventType == PointerEventType.Pressed)
+                {
+                    if (CurVertex < 0)
+                    {
+
+                        DrawingPointF f = new DrawingPointF(((float)point.Position.X - (float)GraphicsDevice.BackBuffer.Width / 2.0f * Edge) / (float)GraphicsDevice.BackBuffer.Width / 2.0f,
+                            ((float)point.Position.Y - (float)GraphicsDevice.BackBuffer.Height/2.0f * Top) / (float)GraphicsDevice.BackBuffer.Height / 2.0f);
+                        System.Diagnostics.Debug.WriteLine(f);
+
+                        for (int i = 0; i < m_Vertices.Length; i++)
+                        {
+                            VertexPositionColor v = m_Vertices[i];
+                            if (v.Position.X > f.X - buff && v.Position.X < f.X + buff &&
+                                v.Position.Y > f.Y - buff && v.Position.Y < f.Y + buff)
+                            {
+                                CurVertex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                else if (point.EventType == PointerEventType.Released)
+                {
+                    CurVertex = -1;
+                }
+                else if (point.EventType == PointerEventType.Moved)
+                {
+                    if (CurVertex >= 0)
+                    {
+                        DrawingPointF f = new DrawingPointF(((float)point.Position.X - (float)GraphicsDevice.BackBuffer.Width / 2.0f) / (float)GraphicsDevice.BackBuffer.Width / 2.0f,
+                            ((float)point.Position.Y - (float)GraphicsDevice.BackBuffer.Height / 2.0f) / (float)GraphicsDevice.BackBuffer.Height / 2.0f);
+
+                        m_Vertices[CurVertex] = new VertexPositionColor(new Vector3(f.X, -f.Y, m_Vertices[CurVertex].Position.Z), Color.Red);
+                    }
+                }
+               
+            }
+                
+
 
             Vertices.SetData(m_Vertices);
             base.Update(gameTime);
@@ -170,6 +272,9 @@ namespace Caricature
             base.Draw(gameTime);
         }
 
+        private readonly IPointerService pointerService;
+        private readonly PointerState pointerState = new PointerState();
+        private int CurVertex = -1;
 
     }
 }
