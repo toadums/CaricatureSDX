@@ -1,1 +1,2 @@
 c:\users\paul\documents\visual studio 2012\Projects\Caricature\Caricature\obj\Debug\Caricature.csprojResolveAssemblyReference.cache
+C:\Users\paul\Documents\GitHub\CaricatureSDX\Caricature\Caricature\obj\Debug\Caricature.csprojResolveAssemblyReference.cache
