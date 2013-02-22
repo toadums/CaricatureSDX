@@ -45,9 +45,6 @@ namespace Caricature
         int Rows = 10;
         int Cols = 10;
 
-        float Top = 1.0f;
-        float Edge = 1.0f;
-
         /// <summary>
         /// basic constructor. Just setting things up - pretty standard
         /// </summary>
@@ -77,29 +74,32 @@ namespace Caricature
             //set up basicGrid effect
             //view = camera pos, projection = frustrum thing, world = ...IDENTITY? D:
             //so top of screen is +/1( BasicGrid.Projection.M11 / BasicGrid.Projection.M22) sides are at +/-1
+
+            float Edge = 468;
+            float Top = 800;
+
             BasicGrid = new BasicEffect(GraphicsDevice)
             {
                 
                 VertexColorEnabled = true,
                 View = Matrix.LookAtLH(new Vector3(0, 0, -5), new Vector3(0, 0, 0), Vector3.UnitY),
-                Projection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, (float)GraphicsDevice.BackBuffer.Width / GraphicsDevice.BackBuffer.Height, 0.1f, 100.0f),
-                //Projection = Matrix.OrthoLH(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, 0.1f, 100.0f),
+                //Projection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, (float)GraphicsDevice.BackBuffer.Width / GraphicsDevice.BackBuffer.Height, 0.1f, 100.0f),
+                Projection = Matrix.OrthoOffCenterLH(0,Edge, Top,0, 0.1f, 100.0f),
                 World = Matrix.Identity
             };
 
             //which color will lines be
             Color vertexColor = Color.Black;
-            //view limits
-            Top = BasicGrid.Projection.M11 / BasicGrid.Projection.M22;
-            Edge = 1.0f;
+
+
 
             //10x10 grid, so 11x11 vertices
             m_Vertices = new VertexPositionColor[121];
             int count = 0;
             //adding vertices
-            for (float i = -Edge; i <= Edge; i += Edge / 5.0f)
+            for (float i = 0; i <= Edge; i += Edge / 10.0f)
             {
-                for (float j = -Top; j <= Top; j += Top / 5.0f)
+                for (float j = 0; j <= Top; j += Top / 10.0f)
                 {
                     m_Vertices[count] = new VertexPositionColor(new Vector3(i, j, -1.0f), vertexColor);
                     count++;
@@ -198,53 +198,56 @@ namespace Caricature
             //randomly move a random vertex...in future this will be when the user drags
             //also need to calculate each vertex via FFD formula
            // m_Vertices[new Random().Next(m_Vertices.Length - 1)].Position.X += 0.05f * (new Random().Next()%2 == 0?-1:1);
-
+            
             pointerService.GetState(pointerState);
 
-            float buff = 0.09f;
-
-            foreach (PointerPoint point in pointerState.Points)
+            float buff = 20.0f;
+            try
             {
-
-                if (point.EventType == PointerEventType.Pressed)
+                foreach (PointerPoint point in pointerState.Points)
                 {
-                    if (CurVertex < 0)
+
+                    if (point.EventType == PointerEventType.Pressed)
                     {
-
-                        DrawingPointF f = new DrawingPointF(((float)point.Position.X - (float)GraphicsDevice.BackBuffer.Width / 2.0f * Edge) / (float)GraphicsDevice.BackBuffer.Width / 2.0f,
-                            ((float)point.Position.Y - (float)GraphicsDevice.BackBuffer.Height/2.0f * Top) / (float)GraphicsDevice.BackBuffer.Height / 2.0f);
-                        System.Diagnostics.Debug.WriteLine(f);
-
-                        for (int i = 0; i < m_Vertices.Length; i++)
+                        if (CurVertex < 0 && pointerState.Points.Count == 1)
                         {
-                            VertexPositionColor v = m_Vertices[i];
-                            if (v.Position.X > f.X - buff && v.Position.X < f.X + buff &&
-                                v.Position.Y > f.Y - buff && v.Position.Y < f.Y + buff)
+                            for (int i = 0; i < m_Vertices.Length; i++)
                             {
-                                CurVertex = i;
-                                break;
+                                VertexPositionColor v = m_Vertices[i];
+
+                                if (v.Position.X > point.Position.X - buff && v.Position.X < point.Position.X + buff &&
+                                    v.Position.Y > point.Position.Y - buff && v.Position.Y < point.Position.Y + buff)
+                                {
+                                    CurVertex = i;
+
+                                    break;
+                                }
                             }
                         }
                     }
-                }
-                else if (point.EventType == PointerEventType.Released)
-                {
-                    CurVertex = -1;
-                }
-                else if (point.EventType == PointerEventType.Moved)
-                {
-                    if (CurVertex >= 0)
+                    else if (point.EventType == PointerEventType.Released)
                     {
-                        DrawingPointF f = new DrawingPointF(((float)point.Position.X - (float)GraphicsDevice.BackBuffer.Width / 2.0f) / (float)GraphicsDevice.BackBuffer.Width / 2.0f,
-                            ((float)point.Position.Y - (float)GraphicsDevice.BackBuffer.Height / 2.0f) / (float)GraphicsDevice.BackBuffer.Height / 2.0f);
-
-                        m_Vertices[CurVertex] = new VertexPositionColor(new Vector3(f.X, -f.Y, m_Vertices[CurVertex].Position.Z), Color.Red);
+                        m_Vertices[CurVertex].Color = Color.Black;
+                        CurVertex = -1;
                     }
+                    else if (point.EventType == PointerEventType.Moved)
+                    {
+                        if (CurVertex >= 0)
+                        {
+                            m_Vertices[CurVertex].Position = new Vector3(point.Position.X, point.Position.Y, m_Vertices[CurVertex].Position.Z);
+                            m_Vertices[CurVertex].Color = Color.Red;
+
+                        }
+                    }
+
                 }
-               
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
             }
                 
-
+            
 
             Vertices.SetData(m_Vertices);
             base.Update(gameTime);
