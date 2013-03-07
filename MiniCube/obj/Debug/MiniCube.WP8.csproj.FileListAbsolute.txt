@@ -1,0 +1,6 @@
+C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\obj\Debug\App.g.cs
+C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\obj\Debug\MainPage.g.cs
+C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\obj\Debug\MiniCube.WP8.g.resources
+C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\obj\Debug\MiniCube.Resources.AppResources.resources
+C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\obj\Debug\MiniCube.WP8.csproj.GenerateResource.Cache
+C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\obj\Debug\MiniCube.WP8.csprojResolveAssemblyReference.cache

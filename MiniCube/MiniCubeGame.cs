@@ -44,9 +44,12 @@ namespace MiniCube
         private VertexInputLayout inputLayout;
         VertexPositionColorTexture[] vert;
 
+
         private readonly IPointerService pointerService;
         private readonly PointerState pointerState = new PointerState();
         private List<int> CurVertices;
+
+        private Effect DrawPoints;
 
         RenderTarget2D ImageRT, GridRT;
 
@@ -67,15 +70,15 @@ namespace MiniCube
             Content.RootDirectory = "Content";
         }
 
-
         protected override void LoadContent()
         {
+
 
             float Edge = 468;
             float Top = 800;
 
-            int Rows = 3;
-            int Cols = 3;
+            int Rows = 10;
+            int Cols = 10;
 
             float ColHeight = Top / (float)Cols;
             float RowWidth = Edge / (float)Rows;
@@ -90,7 +93,7 @@ namespace MiniCube
                 });
 
             basicEffect.TextureEnabled = true;
-            basicEffect.Texture = Content.Load<Texture2D>("birds.dds");
+            basicEffect.Texture = Content.Load<Texture2D>("BigWalt.dds");
 
             // Creates a basic effect
             basicEffectNoTex = ToDisposeContent(new BasicEffect(GraphicsDevice)
@@ -109,9 +112,10 @@ namespace MiniCube
             {
                 for (int j = 0; j < Cols; j++)
                 {
-                    vert[index++] = new VertexPositionColorTexture(new Vector3(RowWidth * i, ColHeight * j, 1.0f), Color.White, new Vector2((float)i / (float)Rows, (float)j / (float)Cols)); // Top Left
+                    
                     vert[index++] = new VertexPositionColorTexture(new Vector3((i + 1) * RowWidth, (j + 1) * ColHeight, 1.0f), Color.White, new Vector2((float)i / (float)Rows + 1.0f / (float)Rows, (float)j / (float)Cols + 1.0f / (float)Cols)); // Bottom Right
                     vert[index++] = new VertexPositionColorTexture(new Vector3(RowWidth * i, (j + 1) * ColHeight, 1.0f), Color.White, new Vector2((float)i / (float)Rows, (float)j / (float)Cols + 1.0f / (float)Cols)); // Bottom Left
+                    vert[index++] = new VertexPositionColorTexture(new Vector3(RowWidth * i, ColHeight * j, 1.0f), Color.White, new Vector2((float)i / (float)Rows, (float)j / (float)Cols)); // Top Left
 
                     vert[index++] = new VertexPositionColorTexture(new Vector3(RowWidth * i, ColHeight * j, 1.0f), Color.White, new Vector2((float)i / (float)Rows, (float)j / (float)Cols)); // Top Left
                     vert[index++] = new VertexPositionColorTexture(new Vector3((i + 1) * RowWidth, ColHeight * j, 1.0f), Color.White, new Vector2((float)i / (float)Rows + 1.0f / (float)Rows, (float)j / (float)Cols)); //Top Right
@@ -145,9 +149,8 @@ namespace MiniCube
            // basicEffect.World = Matrix.RotationX(time) * Matrix.RotationY(time * 2.0f) * Matrix.RotationZ(time * .7f);
             float buff = 20.0f;
 
-
             vertices.SetData(vert);
-            
+
             pointerService.GetState(pointerState);
 
             try
