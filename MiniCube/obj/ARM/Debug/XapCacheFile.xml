@@ -1,11 +1,31 @@
-﻿<xapCache source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Bin\ARM\Debug\MiniCube.WP8_Debug_ARM.xap" wasSigned="False" certificateThumbprint="" TimeStampUrl="" lastWriteTime="3/6/2013 10:12:54 PM">
-  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\obj\ARM\Debug\MiniCube.WP8.dll" archivePath="MiniCube.WP8.dll" lastWriteTime="3/6/2013 10:12:50 PM" />
+﻿<xapCache source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Bin\ARM\Debug\MiniCube.WP8_Debug_ARM.xap" wasSigned="False" certificateThumbprint="" TimeStampUrl="" lastWriteTime="3/6/2013 10:39:00 PM">
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\obj\ARM\Debug\MiniCube.WP8.dll" archivePath="MiniCube.WP8.dll" lastWriteTime="3/6/2013 10:38:57 PM" />
   <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\birds.dds" archivePath="Content\birds.dds" lastWriteTime="3/5/2013 7:05:50 PM" />
   <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\DrawSpheres.fx" archivePath="Content\DrawSpheres.fx" lastWriteTime="3/6/2013 9:50:33 PM" />
   <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\DrawSpheres.fxo" archivePath="Content\DrawSpheres.fxo" lastWriteTime="3/6/2013 9:51:14 PM" />
   <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\RenderToScreen.fx" archivePath="Content\RenderToScreen.fx" lastWriteTime="3/6/2013 9:51:01 PM" />
   <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\RenderToScreen.fxo" archivePath="Content\RenderToScreen.fxo" lastWriteTime="3/6/2013 9:51:07 PM" />
   <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\bigWalt.dds" archivePath="Content\bigWalt.dds" lastWriteTime="3/6/2013 10:12:24 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\COMBINE.fxo" archivePath="Content\HLSL\COMBINE.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\deleteme.fxo" archivePath="Content\HLSL\deleteme.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\GPUImageContrastFilter.fxo" archivePath="Content\HLSL\GPUImageContrastFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\GPUImageMultiplyBlendFilter.fxo" archivePath="Content\HLSL\GPUImageMultiplyBlendFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\RenderToScreen.fxo" archivePath="Content\HLSL\RenderToScreen.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXAutoGammaCorrectFilter.fxo" archivePath="Content\HLSL\ToonFXAutoGammaCorrectFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXCMY64AutoConstrastColorFilter.fxo" archivePath="Content\HLSL\ToonFXCMY64AutoConstrastColorFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXCMY64ColorFilter.fxo" archivePath="Content\HLSL\ToonFXCMY64ColorFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXFlowBilateralCurveFilter.fxo" archivePath="Content\HLSL\ToonFXFlowBilateralCurveFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXFlowBilateralLineFilter.fxo" archivePath="Content\HLSL\ToonFXFlowBilateralLineFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXFlowDogFilter.fxo" archivePath="Content\HLSL\ToonFXFlowDogFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXFlowFromStructureTensor.fxo" archivePath="Content\HLSL\ToonFXFlowFromStructureTensor.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXGaussianFilter.fxo" archivePath="Content\HLSL\ToonFXGaussianFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXLineIntegralConvolutionFilter.fxo" archivePath="Content\HLSL\ToonFXLineIntegralConvolutionFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXPrepareForDogFilter.fxo" archivePath="Content\HLSL\ToonFXPrepareForDogFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXQuantizeColorsUsingFlowFilter.fxo" archivePath="Content\HLSL\ToonFXQuantizeColorsUsingFlowFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXRotateTxColorSpaceFilter.fxo" archivePath="Content\HLSL\ToonFXRotateTxColorSpaceFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXStructureTensorUsingSobelFilter.fxo" archivePath="Content\HLSL\ToonFXStructureTensorUsingSobelFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXThresholdDogFilter.fxo" archivePath="Content\HLSL\ToonFXThresholdDogFilter.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
+  <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Content\HLSL\ToonFXToonSegmentation.fxo" archivePath="Content\HLSL\ToonFXToonSegmentation.fxo" lastWriteTime="3/6/2013 10:14:21 PM" />
   <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Assets\AlignmentGrid.png" archivePath="Assets\AlignmentGrid.png" lastWriteTime="3/5/2013 7:05:49 PM" />
   <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Assets\Tiles\FlipCycleTileLarge.png" archivePath="Assets\Tiles\FlipCycleTileLarge.png" lastWriteTime="3/5/2013 7:05:49 PM" />
   <file source="C:\Users\paul\Documents\GitHub\CaricatureSDX\MiniCube\Assets\Tiles\FlipCycleTileSmall.png" archivePath="Assets\Tiles\FlipCycleTileSmall.png" lastWriteTime="3/5/2013 7:05:49 PM" />

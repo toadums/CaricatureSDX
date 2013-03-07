@@ -37,6 +37,104 @@ namespace MiniCube
     /// </summary>
     public class MiniCubeGame : Game
     {
+
+        #region effects
+        Effect ToonFXCMY64AutoConstrastColorFilter;
+        Effect ToonFXCMY64ColorFilter;
+        Effect ToonFXFlowBilateralLineFilter;
+        Effect ToonFXFlowDogFilter;
+        Effect ToonFXFlowFromStructureTensor;
+        Effect ToonFXGaussianFilter;
+        Effect ToonFXLineIntegralConvolutionFilter;
+        Effect ToonFXPrepareForDogFilter;
+        Effect ToonFXQuantizeColorsUsingFlowFilter;
+        Effect ToonFXStructureTensorUsingSobelFilter;
+        Effect ToonFXThresholdDogFilter;
+        Effect RenderToScreen;
+        Effect GPUImageMultiplyBlendFilter;
+        #endregion
+
+        /// <summary>
+        /// The image we want to toon
+        /// </summary>
+        public static Texture2D CurrentImage;
+        /// <summary>
+        /// Our RenderTargets to use as output/input to shaders
+        /// </summary>
+        private RenderTarget2D RenderTarget0, RenderTarget1, RenderTarget2, RenderTarget3, RenderTarget4, RenderTarget5;
+
+        /// <summary>
+        /// I think texeloffset determines where in the texture you start at (ie. 'changes' 0,0)
+        /// </summary>
+        private float texelOffset = 0.0012f;
+
+        /// <summary>
+        /// Curviness
+        /// </summary>
+        public float sigmaFlow = 2.66f;
+
+        /// <summary>
+        /// Edge width
+        /// </summary>
+        public float sigmaDog = 0.9f + 0.9f * 1.0f;
+
+        /// <summary>
+        /// Not controlled by user
+        /// </summary>
+        private float licSigma = 4.97f;
+
+        /// <summary>
+        /// Not controlled by user
+        /// </summary>
+        private float sigma_s = 5.4f;
+
+        /// <summary>
+        /// Not controlled by user
+        /// </summary>
+        private float sigma_t = 8.0f;
+
+        /// <summary>
+        /// Not controlled by user
+        /// </summary>
+        private float aniso = 2.0f;
+
+        /// <summary>
+        /// number of hue bins, controls how much effect the hue has on the computer color
+        /// </summary>
+        public float hueBins = 24.0f;
+
+        /// <summary>
+        /// number of sat bins, controls how much effect the sat has on the computer color
+        /// </summary>             
+        public float satBins = 24.0f;
+
+        /// <summary>
+        /// number of val bins, controls how much effect the val has on the computer color
+        /// </summary>     
+        public float valBins = 8.0f;
+
+        /// <summary>
+        /// Stroke
+        /// </summary>
+        public float edge_offset = 0.07f;
+
+        /// <summary>
+        /// Amount of gray
+        /// </summary>        
+        public float grey_offset = 2.5f;
+
+        /// <summary>
+        /// amount of black
+        /// </summary>     
+        public float black_offset = 2.65f;
+
+        /// <summary>
+        /// Size of the render target, so it only needs to be set once
+        /// </summary>
+        private Vector2 ImageSize;
+
+        private bool BeenRendered = false;
+
         private GraphicsDeviceManager graphicsDeviceManager;
         private BasicEffect basicEffect;
         private BasicEffect basicEffectNoTex;
@@ -70,9 +168,39 @@ namespace MiniCube
             Content.RootDirectory = "Content";
         }
 
+        private void LoadEffectAndRT()
+        {
+            
+                //Load all the effects
+                ToonFXCMY64AutoConstrastColorFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXCMY64AutoConstrastColorFilter.fxo"));
+                ToonFXCMY64ColorFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXCMY64ColorFilter.fxo"));
+                ToonFXFlowBilateralLineFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXFlowBilateralLineFilter.fxo"));
+                ToonFXFlowDogFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXFlowDogFilter.fxo"));
+                ToonFXFlowFromStructureTensor = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXFlowFromStructureTensor.fxo"));
+                ToonFXGaussianFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXGaussianFilter.fxo"));
+                ToonFXLineIntegralConvolutionFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXLineIntegralConvolutionFilter.fxo"));
+                ToonFXPrepareForDogFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXPrepareForDogFilter.fxo"));
+                ToonFXQuantizeColorsUsingFlowFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXQuantizeColorsUsingFlowFilter.fxo"));
+                ToonFXStructureTensorUsingSobelFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXStructureTensorUsingSobelFilter.fxo"));
+                ToonFXThresholdDogFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\ToonFXThresholdDogFilter.fxo"));
+                RenderToScreen = ToDisposeContent(Content.Load<Effect>(@"HLSL\RenderToScreen.fxo"));
+                GPUImageMultiplyBlendFilter = ToDisposeContent(Content.Load<Effect>(@"HLSL\GPUImageMultiplyBlendFilter.fxo"));
+
+                //load all the render targets
+                RenderTarget0 = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, PixelFormat.B8G8R8A8.UNorm));
+                RenderTarget1 = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, PixelFormat.B8G8R8A8.UNorm));
+                RenderTarget2 = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, PixelFormat.B8G8R8A8.UNorm));
+                RenderTarget3 = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, PixelFormat.B8G8R8A8.UNorm));
+                RenderTarget4 = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, PixelFormat.B8G8R8A8.UNorm));
+                RenderTarget5 = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, PixelFormat.B8G8R8A8.UNorm));
+
+                ImageSize = new Vector2(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height);
+        }
+
         protected override void LoadContent()
         {
 
+            LoadEffectAndRT();
 
             float Edge = 468;
             float Top = 800;
@@ -93,7 +221,7 @@ namespace MiniCube
                 });
 
             basicEffect.TextureEnabled = true;
-            basicEffect.Texture = Content.Load<Texture2D>("BigWalt.dds");
+            CurrentImage = Content.Load<Texture2D>("BigWalt.dds");
 
             // Creates a basic effect
             basicEffectNoTex = ToDisposeContent(new BasicEffect(GraphicsDevice)
@@ -106,6 +234,8 @@ namespace MiniCube
             });
 
             vert = new VertexPositionColorTexture[6 * Rows * Cols];
+
+            Color VertexColor = Color.Red;
 
             int index = 0;
             for (int i = 0; i < Rows; i++)
@@ -147,7 +277,7 @@ namespace MiniCube
             // Rotate the cube.
             var time = (float)gameTime.TotalGameTime.TotalSeconds;
            // basicEffect.World = Matrix.RotationX(time) * Matrix.RotationY(time * 2.0f) * Matrix.RotationZ(time * .7f);
-            float buff = 20.0f;
+            float buff = 10.0f;
 
             vertices.SetData(vert);
 
@@ -201,6 +331,19 @@ namespace MiniCube
             // Clears the screen with the Color.CornflowerBlue
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            if (!BeenRendered)
+            {
+
+                BandWhite(CurrentImage);
+
+                BeenRendered = true;
+            }
+
+            basicEffect.Texture = RenderTarget4;
+
+            GraphicsDevice.SetRenderTargets(GraphicsDevice.BackBuffer);
+
+
             // Setup the vertices
             GraphicsDevice.SetVertexBuffer(vertices);
             GraphicsDevice.SetVertexInputLayout(inputLayout);
@@ -209,13 +352,185 @@ namespace MiniCube
             basicEffect.CurrentTechnique.Passes[0].Apply();
             GraphicsDevice.Draw(PrimitiveType.TriangleList, vertices.ElementCount);
 
+            for (int i = 0; i < vert.Length; i++)
+            {
+                vert[i].Color = Color.Red;
+            }
+
+            vertices.SetData(vert);
+
             basicEffectNoTex.CurrentTechnique.Passes[0].Apply();
             GraphicsDevice.Draw(PrimitiveType.LineList, vertices.ElementCount);
 
+            for (int i = 0; i < vert.Length; i++)
+            {
+                vert[i].Color = Color.White;
+            }
+
+            vertices.SetData(vert);
 
             // Handle base.Draw
             base.Draw(gameTime);
         }
+
+        /// <summary>
+        /// Just compute the black lines of the image
+        /// </summary>
+        /// <param name="tex">Image to print</param>
+        /// <returns>The renderTarget which holds the tooned picture</returns>
+        private RenderTarget2D BandWhite(Texture2D tex)
+        {
+
+            GraphicsDevice.SetRenderTargets(RenderTarget5);
+            RenderToScreen.Parameters["InputTexture"].SetResource(tex);
+            RenderToScreen.Parameters["Orientation"].SetValue(0);
+            GraphicsDevice.DrawQuad(RenderToScreen);
+
+            GetThreshold(RenderTarget5);
+
+            return RenderTarget4;
+
+        }
+
+        /// <summary>
+        /// Apply the filters to get the outline of the image
+        /// </summary>
+        /// <param name="tex">Image to print</param>
+        private void GetThreshold(RenderTarget2D tex)
+        {
+            StructureTensor(tex);
+            TensorSmoothing(RenderTarget2);
+            Flow(RenderTarget3);
+            BilateralLine(tex, RenderTarget2, sigma_s, sigma_t, aniso);
+            PrepareForDOG(RenderTarget3);
+            DOG(RenderTarget1, RenderTarget2);
+            LIC(RenderTarget4, RenderTarget2);
+            Threshold(RenderTarget1);
+        }
+
+        #region TOONING
+
+        private void StructureTensor(RenderTarget2D rt)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget2);
+            ToonFXStructureTensorUsingSobelFilter.Parameters["InputTexture"].SetResource(rt);
+            ToonFXStructureTensorUsingSobelFilter.Parameters["ImageSize"].SetValue(ImageSize);
+            GraphicsDevice.DrawQuad(ToonFXStructureTensorUsingSobelFilter);
+
+        }
+
+        private void TensorSmoothing(RenderTarget2D rt)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget1);
+            ToonFXGaussianFilter.Parameters["InputTexture"].SetResource(rt);
+            ToonFXGaussianFilter.Parameters["texelWidthOffset"].SetValue(texelOffset);
+            ToonFXGaussianFilter.Parameters["texelHeightOffset"].SetValue(texelOffset);
+            ToonFXGaussianFilter.Parameters["sigma_flow"].SetValue(sigmaFlow);
+            ToonFXGaussianFilter.Parameters["dir"].SetValue(false);
+            GraphicsDevice.DrawQuad(ToonFXGaussianFilter);
+
+            GraphicsDevice.SetRenderTargets(RenderTarget3);
+            ToonFXGaussianFilter.Parameters["InputTexture"].SetResource(RenderTarget1);
+            ToonFXGaussianFilter.Parameters["dir"].SetValue(true);
+            GraphicsDevice.DrawQuad(ToonFXGaussianFilter);
+        }
+
+        private void Flow(RenderTarget2D rt)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget2);
+            ToonFXFlowFromStructureTensor.Parameters["InputTexture"].SetResource(rt);
+            GraphicsDevice.DrawQuad(ToonFXFlowFromStructureTensor);
+        }
+
+        private void BilateralLine(RenderTarget2D rt1, RenderTarget2D rt2, float sigmaS, float sigmaT, float aniso)
+        {
+
+            GraphicsDevice.SetRenderTargets(RenderTarget1);
+            ToonFXFlowBilateralLineFilter.Parameters["InputTexture1"].SetResource(rt1);
+            ToonFXFlowBilateralLineFilter.Parameters["InputTexture2"].SetResource(rt2);
+            ToonFXFlowBilateralLineFilter.Parameters["texelWidthOffset"].SetValue(texelOffset);
+            ToonFXFlowBilateralLineFilter.Parameters["texelHeightOffset"].SetValue(texelOffset);
+            ToonFXFlowBilateralLineFilter.Parameters["sigma_s"].SetValue(sigmaS);
+            ToonFXFlowBilateralLineFilter.Parameters["sigma_t"].SetValue(sigmaT);
+            ToonFXFlowBilateralLineFilter.Parameters["dir"].SetValue(true);
+            GraphicsDevice.DrawQuad(ToonFXFlowBilateralLineFilter);
+
+            GraphicsDevice.SetRenderTargets(RenderTarget3);
+            ToonFXFlowBilateralLineFilter.Parameters["InputTexture1"].SetResource(RenderTarget1);
+            ToonFXFlowBilateralLineFilter.Parameters["InputTexture2"].SetResource(rt2);
+            ToonFXFlowBilateralLineFilter.Parameters["sigma_s"].SetValue(sigmaS * aniso);//second bilateral needs only sigma s set, since sigma t will be the same as above
+            ToonFXFlowBilateralLineFilter.Parameters["dir"].SetValue(false);
+            GraphicsDevice.DrawQuad(ToonFXFlowBilateralLineFilter);
+
+        }
+
+        private void PrepareForDOG(RenderTarget2D rt)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget1);
+            ToonFXPrepareForDogFilter.Parameters["InputTexture"].SetResource(rt);
+            GraphicsDevice.DrawQuad(ToonFXPrepareForDogFilter);
+
+        }
+
+        private void DOG(RenderTarget2D rt1, RenderTarget2D rt2)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget4);
+            ToonFXFlowDogFilter.Parameters["InputTexture1"].SetResource(rt1);
+            ToonFXFlowDogFilter.Parameters["InputTexture2"].SetResource(rt2);
+            ToonFXFlowDogFilter.Parameters["texelWidthOffset"].SetValue(texelOffset);
+            ToonFXFlowDogFilter.Parameters["texelHeightOffset"].SetValue(texelOffset);
+            ToonFXFlowDogFilter.Parameters["sigma_dog"].SetValue(sigmaDog);
+            GraphicsDevice.DrawQuad(ToonFXFlowDogFilter);
+        }
+
+        private void LIC(RenderTarget2D rt1, RenderTarget2D rt2)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget1);
+            ToonFXLineIntegralConvolutionFilter.Parameters["InputTexture1"].SetResource(rt1);
+            ToonFXLineIntegralConvolutionFilter.Parameters["InputTexture2"].SetResource(rt2);
+            ToonFXLineIntegralConvolutionFilter.Parameters["texelWidthOffset"].SetValue(texelOffset);
+            ToonFXLineIntegralConvolutionFilter.Parameters["texelHeightOffset"].SetValue(texelOffset);
+            ToonFXLineIntegralConvolutionFilter.Parameters["sigma_c"].SetValue(licSigma);
+            GraphicsDevice.DrawQuad(ToonFXLineIntegralConvolutionFilter);
+        }
+
+        private void Threshold(RenderTarget2D rt)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget4);
+            ToonFXThresholdDogFilter.Parameters["InputTexture"].SetResource(RenderTarget1);
+            ToonFXThresholdDogFilter.Parameters["edge_offset"].SetValue(edge_offset);
+            ToonFXThresholdDogFilter.Parameters["grey_offset"].SetValue(grey_offset);
+            ToonFXThresholdDogFilter.Parameters["black_offset"].SetValue(black_offset);
+            ToonFXThresholdDogFilter.Parameters["Rainbow"].SetValue(false);
+            GraphicsDevice.DrawQuad(ToonFXThresholdDogFilter);
+        }
+
+        private void Blend(RenderTarget2D rt1, RenderTarget2D rt2)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget5);
+            GPUImageMultiplyBlendFilter.Parameters["InputTexture1"].SetResource(rt1);
+            GPUImageMultiplyBlendFilter.Parameters["InputTexture2"].SetResource(rt2);
+            GraphicsDevice.DrawQuad(GPUImageMultiplyBlendFilter);
+        }
+
+        private void Quantize(RenderTarget2D rt1, RenderTarget2D rt2)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget1);
+            ToonFXQuantizeColorsUsingFlowFilter.Parameters["InputTexture1"].SetResource(rt1);
+            ToonFXQuantizeColorsUsingFlowFilter.Parameters["InputTexture2"].SetResource(rt2);
+            ToonFXQuantizeColorsUsingFlowFilter.Parameters["ValueBins"].SetValue(valBins);
+            ToonFXQuantizeColorsUsingFlowFilter.Parameters["SaturationBins"].SetValue(satBins);
+            ToonFXQuantizeColorsUsingFlowFilter.Parameters["HueBins"].SetValue(hueBins);
+            GraphicsDevice.DrawQuad(ToonFXQuantizeColorsUsingFlowFilter);
+        }
+
+        private void CMYToon64(RenderTarget2D rt1)
+        {
+            GraphicsDevice.SetRenderTargets(RenderTarget3);
+            ToonFXCMY64AutoConstrastColorFilter.Parameters["InputTexture"].SetResource(rt1);
+            GraphicsDevice.DrawQuad(ToonFXCMY64AutoConstrastColorFilter);
+        }
+        #endregion
 
     }
 }
